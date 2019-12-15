@@ -27,7 +27,32 @@ contract EnglishAuction is Auction {
     }
 
     function bid() public payable {
-        // TODO Your code here
-        revert("Not yet implemented");
+        uint minimalPrice = highestBid != 0 ?
+            highestBid + minimumPriceIncrement :
+            initialPrice;
+
+        require(msg.value >= minimalPrice);
+        require(time() < lastBidTimestamp + biddingPeriod);
+
+        if (highestBidder != address(0)) {
+            // Refund last highest bidder
+            highestBidder.transfer(highestBid);
+        }
+
+        highestBid = msg.value;
+        highestBidder = msg.sender;
+        lastBidTimestamp = time();
+    }
+
+    /// @dev Override
+    /// Function that returns highest bidder address or address(0) if
+    /// auction is not yet over.
+    function getHighestBidder() public view returns (address) {
+        if (time() >= lastBidTimestamp + biddingPeriod) {
+            Outcome _outcome = highestBidder != address(0) ? Outcome.SUCCESSFUL : Outcome.NOT_SUCCESSFUL;
+            finishAuction(_outcome, highestBidder);
+        }
+
+        return highestBidderAddress;
     }
 }
