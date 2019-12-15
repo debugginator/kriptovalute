@@ -35,11 +35,21 @@ contract DutchAuction is Auction {
         auctionEnd = auctionStart + _biddingPeriod;
     }
 
+
     /// In a Dutch auction, the winner is the first person who bids with
     /// a price higher than the current price.
     /// This method should only be called while the auction is active.
     function bid() public payable {
-        // TODO Your code here
-        revert("Not yet implemented");
+        require(this.time() < auctionEnd);
+        require(highestBidderAddress == address(0));
+
+        uint currentPrice = initialPrice - priceDecrement * (this.time() - auctionStart);
+        require(msg.value >= currentPrice);
+
+        finishAuction(Outcome.SUCCESSFUL, msg.sender);
+
+        if (msg.value > currentPrice) {
+            msg.sender.transfer(msg.value - currentPrice);
+        }
     }
 }
