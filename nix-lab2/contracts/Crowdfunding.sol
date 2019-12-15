@@ -33,23 +33,23 @@ contract Crowdfunding {
     }
 
     function invest() public payable {
-        require(_timer.getTime() < _endTimestamp);
+        require(timer.getTime() < endTimestamp);
         require(msg.value > 0);
 
         investments[msg.sender] += msg.value;
     }
 
     function claimFunds() public {
-        require(_timer.getTime() >= _endTimestamp);
-        require(address(this).balance >= _goal);
+        require(timer.getTime() >= endTimestamp);
+        require(address(this).balance >= goal);
         require(msg.sender == owner);
 
         msg.sender.transfer(address(this).balance);
     }
 
     function refund() public {
-        require(_timer.getTime() >= _endTimestamp);
-        require(address(this).balance < _goal);
+        require(timer.getTime() >= endTimestamp);
+        require(address(this).balance < goal);
 
         uint256 amount = investments[msg.sender];
         investments[msg.sender] = 0;
